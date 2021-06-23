@@ -61,6 +61,12 @@
 # GENIMAGE_IMAGE_SUFFIX	- file extension suffix for created image (default: 'img')
 # GENIMAGE_ROOTFS_IMAGE - input rootfs image to generate file system images from
 # GENIMAGE_ROOTFS_IMAGE_FSTYPE	- input roofs FSTYPE to use (default: 'tar.bz2')
+#
+# Note that the class also allows to replace some common markers in the genimage
+# config file to allow writing more generic configs:
+#
+# @IMAGE@   - will be replaced with the name of the image to generate
+# @MACHINE@ - will be replaced by the current MACHINE
 
 inherit image-artifact-names deploy
 
@@ -103,7 +109,11 @@ do_configure () {
 do_genimage[dirs] = "${B}"
 
 fakeroot do_genimage () {
-    sed s:@IMAGE@:${GENIMAGE_IMAGE_NAME}.${GENIMAGE_IMAGE_SUFFIX}:g ${WORKDIR}/genimage.config > ${B}/.config
+
+    # Replace common markers in config file
+    cp ${WORKDIR}/genimage.config ${B}/.config
+    sed -i s:@IMAGE@:${GENIMAGE_IMAGE_NAME}.${GENIMAGE_IMAGE_SUFFIX}:g ${B}/.config
+    sed -i s:@MACHINE@:${MACHINE}:g ${B}/.config
 
     # unpack input rootfs image if given
     if [ "x${GENIMAGE_ROOTFS_IMAGE}" != "x" ]; then
