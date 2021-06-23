@@ -46,3 +46,7 @@ jobs:
         run: |
           source poky/oe-init-build-env build
           bitbake dt-utils
+      - name: Run test layer tests
+        run: |
+          bitbake-layers add-layer ../.github/meta-ptx-tests
+          bitbake genimage-sdcard
